@@ -1,0 +1,26 @@
+{
+  "name": "@Nerveustech/victor",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "bin": {
+    "victor": "./dist/victor-linux-x64"
+  },
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun --watch src/index.ts",
+    "build": "bun run build.ts",
+    "test": "bun test",
+    "clean": "rm -rf ./dist && echo '`dist` folder removed.'"
+  },
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^7"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  }
+}
