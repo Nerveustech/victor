@@ -320,7 +320,7 @@ export interface ResponsesCreateResponse {
     model:                string;
     previous_response_id: null;
     instructions:         null;
-    output:               Output[];
+    output:               OutputItem[];
     error:                null;
     tools:                unknown[];
     tool_choice:          string;

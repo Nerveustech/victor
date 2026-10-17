@@ -18,11 +18,18 @@ limitations under the License.
 import { getModel, setConsoleTitle, setModel, writeToStdout, setRandomTitle } from './utils/utils';
 import { exit } from './commands/exit';
 import { getAvailableModels, getModelInfo } from './commands/models';
-import { loadSettingsOnEnv } from './utils/config';
+import { loadSettingsOnEnv, getUnrestrictedAccess } from './utils/config';
 import { createResponse } from './llm/client';
 import { getSystemPrompt } from './prompts/system';
 import { Memory } from './agent/memory';
 import { StateModel } from './agent/state';
+import { registry } from './tools/registry';
+import { ToolExecutor } from './agent/tool_executor';
+import type { FunctionCallOutput } from './types/openai';
+
+// Import tools per auto-registrazione via decorator
+import './tools/read_file';
+import './tools/write_file';
 
 
 async function processCommand(prompt: string): Promise<void> {
@@ -46,33 +53,76 @@ async function processCommand(prompt: string): Promise<void> {
 
 
 async function processPrompt(prompt: string, memory: Memory) {
-    const response = await createResponse({
-        model: getModel()!,
-        input: prompt,
-        instructions: (memory.previousResponseId === null) ? await getSystemPrompt() : null,
-        previous_response_id: (memory.previousResponseId === null) ? null : memory.previousResponseId,
-    });
-    //FIXME: add stream
-    
-    //console.log(`Status: ${response.status}\nUsage:${response.usage}`);
+    const context = {
+        workingDirectory: process.cwd(),
+        allowedPaths: getUnrestrictedAccess() ? undefined : [process.cwd()],
+    };
 
-    const output = response.output;
-    let output_text = "";
-    
-    for (let i = 0; i < output?.length!; i++) {
-        if (output![i]?.content[0]?.type === "reasoning_text") {
-            //console.log(`Thinking: ${output![i]?.content[0]?.text}`);
-        }
+    const executor = new ToolExecutor(registry, context);
 
-        if (output![i]?.content[0]?.type === "output_text") {
-            //console.log(`Output: ${content![index]?.text}`);
-            output_text = output![i]?.content[0]?.text!;
+    let response;
+
+    if (memory.previousResponseId === null) {
+        response = await createResponse({
+            model: getModel()!,
+            input: prompt,
+            instructions: await getSystemPrompt(),
+            previous_response_id: null,
+            tools: registry.getToolsForProvider(process.env.VICTOR_PROVIDER!),
+        });
+    } else {
+        response = await createResponse({
+            model: getModel()!,
+            input: prompt,
+            instructions: null,
+            previous_response_id: memory.previousResponseId,
+            tools: registry.getToolsForProvider(process.env.VICTOR_PROVIDER!),
+        });
+    }
+
+    const toolCalls = response.output?.filter((item) => item.type === 'function_call') as FunctionCallOutput[] || [];
+
+    if (toolCalls.length > 0) {
+        let currentPrompt = executor.formatResultsAsUserMessage(await executor.executeCalls(toolCalls));
+
+        for (let turn = 0; turn < 5; turn++) {
+            const followUpResponse = await createResponse({
+                model: getModel()!,
+                input: currentPrompt,
+                instructions: null,
+                previous_response_id: memory.previousResponseId,
+                tools: registry.getToolsForProvider(process.env.VICTOR_PROVIDER!),
+            });
+
+            const nextToolCalls = followUpResponse.output?.filter((item) => item.type === 'function_call') as FunctionCallOutput[] || [];
+
+            if (nextToolCalls.length === 0) {
+                response = followUpResponse;
+                break;
+            }
+
+            currentPrompt = executor.formatResultsAsUserMessage(await executor.executeCalls(nextToolCalls));
         }
     }
-    
+
+    const output = response.output;
+    let output_text = '';
+
+    for (let i = 0; i < output?.length!; i++) {
+        const item = output![i];
+
+        if (item !== undefined && 'content' in item && Array.isArray(item.content)) {
+            for (const c of item.content) {
+                if (c.type === 'output_text') {
+                    output_text += c.text;
+                }
+            }
+        }
+    }
+
     memory.previousResponseId = response.id;
     memory.tokenUsed = response.usage.total_tokens;
-    
+
     return output_text;
 }
 
@@ -122,6 +172,7 @@ export async function cli() {
     }
 
     await loadSettingsOnEnv();
+
     setConsoleTitle("Victor");
     return await interactiveMode();
 }

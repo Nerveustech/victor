@@ -20,7 +20,7 @@ import { homedir } from 'node:os';
 
 
 export function setRandomTitle() {
-    const titles = ["On Duty!", "Processing prompt...", "Doing a magic trick"];
+    const titles = ["On Duty!", "Processing prompt...", "Doing a magic trick", "Working on it!"];
     const randomIndex = Math.floor(Math.random() * titles.length);
     setConsoleTitle(`Victor | ${titles[randomIndex]}`);
 }

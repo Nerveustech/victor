@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { readFile, writeFile } from 'fs/promises';
+import { readFileSync } from 'fs';
 import { getConfigPath, setBaseUrl, setModel, setProvider } from './utils';
 
 
@@ -22,6 +23,19 @@ interface Settings {
     base_url: string,
     provider: string,
     model?: string,
+    unrestricted_access_to_filesystem?: boolean,
+}
+
+
+export function getSettingsSync(): Settings | undefined {
+    try {
+        const path = getConfigPath();
+        const content = readFileSync(path, 'utf8');
+        return JSON.parse(content);
+    } catch (error) {
+        console.error("Failed to read or parse settings.json:", error);
+        return undefined;
+    }
 }
 
 
@@ -35,6 +49,12 @@ export async function getSettings() {
     } catch (error) {
         console.error("Failed to read or parse JSON file:", error);    
     }
+}
+
+
+export function getUnrestrictedAccess(): boolean {
+    const settings = getSettingsSync();
+    return settings?.unrestricted_access_to_filesystem === true;
 }
 
 
