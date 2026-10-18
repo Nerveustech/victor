@@ -19,7 +19,7 @@ import { platform } from 'node:os';
 const SYSTEM_PROMPT = `You are Victor, an autonomous cli agent, specialized in software engineering tasks.`
 
 const ENVIRONMENT = `The current working directory (CWD) is: '${process.cwd()}'.
-The agent is running under: '${platform()}${await getInfo()}'.
+The agent is running under: '${platform()}${getInfo()}'.
 Always ensure your commands and file paths are fully compatible with this specific environment.`;
 
 const TONE_AND_STYLE = `DO NOT USE emojis unless explicitly requested by the user.`
@@ -35,10 +35,12 @@ export async function getSystemPrompt() {
 }
 
 
-async function getInfo() {
-    const wsl = process.env.WSL_DISTRO_NAME
+function getInfo() {
+    const wsl = process.env.WSL_DISTRO_NAME;
 
     if(wsl !== undefined) {
         return `:${wsl} (WSL)`;
     }
+
+    return '';
 }
