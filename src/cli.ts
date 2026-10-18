@@ -27,9 +27,12 @@ import { registry } from './tools/registry';
 import { ToolExecutor } from './agent/tool_executor';
 import type { FunctionCallOutput } from './types/openai';
 
-// Import tools per auto-registrazione via decorator
+
 import './tools/read_file';
 import './tools/write_file';
+import './tools/glob';
+import './tools/execute_command';
+import './tools/read_env';
 
 
 async function processCommand(prompt: string): Promise<void> {
@@ -69,6 +72,7 @@ async function processPrompt(prompt: string, memory: Memory) {
             instructions: await getSystemPrompt(),
             previous_response_id: null,
             tools: registry.getToolsForProvider(process.env.VICTOR_PROVIDER!),
+            tool_choice: "auto"
         });
     } else {
         response = await createResponse({
@@ -77,6 +81,7 @@ async function processPrompt(prompt: string, memory: Memory) {
             instructions: null,
             previous_response_id: memory.previousResponseId,
             tools: registry.getToolsForProvider(process.env.VICTOR_PROVIDER!),
+            tool_choice: "auto"
         });
     }
 
@@ -92,6 +97,7 @@ async function processPrompt(prompt: string, memory: Memory) {
                 instructions: null,
                 previous_response_id: memory.previousResponseId,
                 tools: registry.getToolsForProvider(process.env.VICTOR_PROVIDER!),
+                tool_choice: "auto"
             });
 
             const nextToolCalls = followUpResponse.output?.filter((item) => item.type === 'function_call') as FunctionCallOutput[] || [];
