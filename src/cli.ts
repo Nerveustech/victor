@@ -33,6 +33,7 @@ import './tools/write_file';
 import './tools/glob';
 import './tools/execute_command';
 import './tools/read_env';
+import './tools/list_dir';
 
 
 async function processCommand(prompt: string): Promise<void> {
