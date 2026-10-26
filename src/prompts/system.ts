@@ -39,7 +39,7 @@ function getInfo() {
     const wsl = process.env.WSL_DISTRO_NAME;
 
     if(wsl !== undefined) {
-        return `:${wsl} (WSL)`;
+        return `:${wsl}. You are on WSL on Windows`;
     }
 
     return '';
