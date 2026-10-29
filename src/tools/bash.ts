@@ -18,19 +18,25 @@ import { z } from 'zod';
 import type { Tool, ToolResult, ToolContext } from '../types/tools';
 import { registry } from './registry';
 import { platform } from 'node:os';
+import { globalBashHistory } from '../agent/memory';
 
-const ExecuteCommandSchema = z.object({
+const BashSchema = z.object({
     command: z.string().min(1, 'The "command" parameter cannot be empty.'),
     cwd: z.string().optional(),
     timeout_ms: z.number().min(1000).max(60000).default(30000),
 });
 
-export const ExecuteCommandTool: Tool<typeof ExecuteCommandSchema> = {
-    name: 'execute_command',
+export const BashTool: Tool<typeof BashSchema> = {
+    name: 'bash',
     description: 'Execute a shell command in the working directory. Returns stdout and stderr separately. Cross-platform: uses cmd on Windows, sh on Linux/MacOS.',
-    parameters: ExecuteCommandSchema,
+    parameters: BashSchema,
 
     execute: async (args, context: ToolContext): Promise<ToolResult | string> => {
+        globalBashHistory?.push(args.command);
+
+        //TODO: Check whether args.command is a SUSPICIOUS_COMMAND; if so, notify the user, display the command, and ask whether they wish to execute it or not.
+        //const SUSPICIOUS_COMMAND = ['/^curl -s( -m 10( -o( \/tmp\/)?)?)?$/'];
+
         // 1. Security: block dangerous commands
         const DANGEROUS_PATTERNS = [
             /^rm\s+(-rf?|--force)/,
@@ -138,4 +144,4 @@ export const ExecuteCommandTool: Tool<typeof ExecuteCommandSchema> = {
     },
 };
 
-registry.register(ExecuteCommandTool);
+registry.register(BashTool);

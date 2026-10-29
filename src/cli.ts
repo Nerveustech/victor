@@ -21,19 +21,21 @@ import { getAvailableModels, getModelInfo } from './commands/models';
 import { loadSettingsOnEnv, getUnrestrictedAccess } from './utils/config';
 import { createResponse } from './llm/client';
 import { getSystemPrompt } from './prompts/system';
-import { Memory } from './agent/memory';
+import { globalBashHistory, initializeBashHistory, Memory } from './agent/memory';
 import { StateModel } from './agent/state';
 import { registry } from './tools/registry';
 import { ToolExecutor } from './agent/tool_executor';
 import type { FunctionCallOutput } from './types/openai';
 import { Orchestrator } from './agents/orchestrator';
 import { registerBuiltinAgents } from './agents/agent_registry';
-
+import { appendFile } from 'node:fs/promises';
+import { EOL } from 'node:os';
+import { join } from 'node:path';
 
 import './tools/read_file';
 import './tools/write_file';
 import './tools/glob';
-import './tools/execute_command';
+import './tools/bash';
 import './tools/read_env';
 import './tools/list_dir';
 import './tools/grep';
@@ -51,7 +53,6 @@ async function initializeOrchestrator(): Promise<Orchestrator> {
     }
     return globalOrchestrator;
 }
-
 
 async function processCommand(prompt: string, orchestrator: Orchestrator): Promise<void> {
     const trimmed = prompt.trim().toLowerCase();
@@ -71,6 +72,12 @@ async function processCommand(prompt: string, orchestrator: Orchestrator): Promi
 
         case "/agents":
             writeToStdout(orchestrator.listAgents());
+            break;
+        
+        case "/dump-bash":
+            let content = globalBashHistory?.history.join(EOL) + EOL;
+            let isoTime = new Date().toISOString();
+            await appendFile(join(content, `bash_history_${isoTime.replaceAll(':', '_')}.txt`), content);
             break;
 
         default:
@@ -197,6 +204,7 @@ async function interactiveMode(): Promise<void> {
     const orchestrator = await initializeOrchestrator();
     const memory = new Memory();
     const state = new StateModel();
+    await initializeBashHistory();
     
     const input = "> ";
     writeToStdout(input);

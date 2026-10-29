@@ -90,6 +90,10 @@ export function getConfigPath() {
     return `${homedir()}${path.normalize("/.config/victor/settings.json")}`;
 }
 
+export function getDumpPath() {
+    return `${homedir()}${path.normalize("/.config/victor/dumps/")}`;
+}
+
 
 export function writeToStdout(text: string) {
     Bun.write(Bun.stdout, text);

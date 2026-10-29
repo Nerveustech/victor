@@ -15,6 +15,49 @@ limitations under the License.
 */
 
 
+export let globalBashHistory: BashHistory | null = null;
+
+
+export async function initializeBashHistory(): Promise<BashHistory> {
+    if (!globalBashHistory) {
+        globalBashHistory = new BashHistory();
+    }
+    return globalBashHistory;
+}
+
+
+export class BashHistory {
+    private _history: string[];
+    private _currentIndex: number;
+    private _maxLimit: number;
+
+    constructor(maxLimit = 2000){
+        this._history = [];
+        this._currentIndex = -1;
+        this._maxLimit = maxLimit;
+    }
+
+    public push(element: string) {
+        if (this._history.length >= this._maxLimit) {
+            this._history.shift();
+        }
+
+        this._history.push(element);
+        this._currentIndex = this._history.length - 1;
+    }
+    
+    get history() {
+        return this._history;
+    }
+
+    //TODO: use this when a new session is created
+    public clear() {
+        this._history = [];
+        this._currentIndex = -1;
+    }
+}
+
+
 export class Memory {
     _tokenUsed: number;
     _previousResponseId: string | null;
