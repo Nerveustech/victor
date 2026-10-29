@@ -14,7 +14,7 @@ An autonomous CLI agent specialized in software engineering tasks. Victor is an 
 ## Installation
 
 ```bash
-git clone https://github.com/your-org/victor.git
+git clone https://github.com/Nerveustech/victor.git
 cd victor
 bun install
 bun start
