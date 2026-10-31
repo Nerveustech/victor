@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 
-import { getModel, setConsoleTitle, setModel, writeToStdout, setRandomTitle } from './utils/utils';
+import { getModel, setConsoleTitle, setModel, writeToStdout, setRandomTitle, getDumpPath } from './utils/utils';
 import { exit } from './commands/exit';
 import { getAvailableModels, getModelInfo } from './commands/models';
 import { loadSettingsOnEnv, getUnrestrictedAccess } from './utils/config';
@@ -77,7 +77,7 @@ async function processCommand(prompt: string, orchestrator: Orchestrator): Promi
         case "/dump-bash":
             let content = globalBashHistory?.history.join(EOL) + EOL;
             let isoTime = new Date().toISOString();
-            await appendFile(join(content, `bash_history_${isoTime.replaceAll(':', '_')}.txt`), content);
+            await appendFile(join(await getDumpPath(), `bash_history_${isoTime.replaceAll(':', '_')}.txt`), content);
             break;
 
         default:

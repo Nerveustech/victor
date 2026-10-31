@@ -17,6 +17,7 @@ limitations under the License.
 import path from 'node:path';
 import { saveToSettings } from './config';
 import { homedir } from 'node:os';
+import { mkdir } from 'node:fs/promises';
 
 
 export function setRandomTitle() {
@@ -90,8 +91,10 @@ export function getConfigPath() {
     return `${homedir()}${path.normalize("/.config/victor/settings.json")}`;
 }
 
-export function getDumpPath() {
-    return `${homedir()}${path.normalize("/.config/victor/dumps/")}`;
+export async function getDumpPath() {
+    const dumpPath = `${homedir()}${path.normalize("/.config/victor/dumps/")}`
+    await mkdir(dumpPath, { recursive: true });
+    return dumpPath;
 }
 
 
