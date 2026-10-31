@@ -16,7 +16,6 @@ limitations under the License.
 
 import { z } from 'zod';
 import type { Tool, ToolResult, ToolContext } from '../types/tools';
-import { registry } from './registry';
 
 const ReadEnvSchema = z.object({
     name: z.string().min(1, 'The "name" parameter cannot be empty.'),
@@ -41,5 +40,3 @@ export const ReadEnvTool: Tool<typeof ReadEnvSchema> = {
         };
     },
 };
-
-registry.register(ReadEnvTool);

@@ -17,6 +17,16 @@ limitations under the License.
 import type { Tool } from '../types/tools';
 import type { FunctionTool } from '../types/openai';
 
+import { BashTool } from './bash';
+import { GlobTool } from './glob';
+import { GrepTool } from './grep';
+import { ListDirTool } from './list_dir';
+import { PatchFileTool } from './patch_file';
+import { ReadEnvTool } from './read_env';
+import { ReadFileTool } from './read_file';
+import { WriteFileTool } from './write_file';
+
+
 
 export class ToolRegistry {
     private tools = new Map<string, Tool<any>>();
@@ -43,6 +53,13 @@ export class ToolRegistry {
         }));
     }
 
+    registerBuiltinTools(): void {
+        const BUILTIN_TOOLS = [BashTool, GlobTool, GrepTool, ListDirTool, PatchFileTool, ReadEnvTool, ReadFileTool, WriteFileTool];
+    
+        for (const tool of BUILTIN_TOOLS) {
+            registry.register(tool);
+        }
+    }
 
     private zodToJsonSchema(schema: any): Record<string, unknown> {
         const def = schema._def || schema.def;

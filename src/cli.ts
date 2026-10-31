@@ -32,15 +32,6 @@ import { appendFile } from 'node:fs/promises';
 import { EOL } from 'node:os';
 import { join } from 'node:path';
 
-import './tools/read_file';
-import './tools/write_file';
-import './tools/glob';
-import './tools/bash';
-import './tools/read_env';
-import './tools/list_dir';
-import './tools/grep';
-import './tools/patch_file';
-
 
 let globalOrchestrator: Orchestrator | null = null;
 
@@ -202,6 +193,7 @@ async function interactiveMode(): Promise<void> {
     console.clear();
 
     const orchestrator = await initializeOrchestrator();
+    registry.registerBuiltinTools();
     const memory = new Memory();
     const state = new StateModel();
     await initializeBashHistory();

@@ -16,7 +16,6 @@ limitations under the License.
 
 import { z } from 'zod';
 import type { Tool, ToolResult, ToolContext } from '../types/tools';
-import { registry } from './registry';
 import { join, isAbsolute } from 'node:path';
 import { readdir, readFile } from 'node:fs/promises';
 
@@ -208,6 +207,3 @@ export const GrepTool: Tool<typeof GrepSchema> = {
         return output;
     },
 };
-
-
-registry.register(GrepTool);

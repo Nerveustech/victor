@@ -16,7 +16,6 @@ limitations under the License.
 
 import { z } from 'zod';
 import type { Tool, ToolResult, ToolContext } from '../types/tools';
-import { registry } from './registry';
 
 
 const PatchFileSchema = z.object({
@@ -91,5 +90,3 @@ export const PatchFileTool: Tool<typeof PatchFileSchema> = {
         }
     }
 };
-
-registry.register(PatchFileTool);

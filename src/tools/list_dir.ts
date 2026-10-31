@@ -16,7 +16,6 @@ limitations under the License.
 
 import { z } from 'zod';
 import type { Tool, ToolResult, ToolContext } from '../types/tools';
-import { registry } from './registry';
 import { readdir, lstat, stat, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -337,5 +336,3 @@ export const ListDirTool: Tool<typeof ListDirSchema> = {
         return formatted;
     },
 };
-
-registry.register(ListDirTool);

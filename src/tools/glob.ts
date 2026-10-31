@@ -16,7 +16,6 @@ limitations under the License.
 
 import { z } from 'zod';
 import type { Tool, ToolResult, ToolContext } from '../types/tools';
-import { registry } from './registry';
 import { Glob } from 'bun';
 
 const GlobSchema = z.object({
@@ -94,5 +93,3 @@ export const GlobTool: Tool<typeof GlobSchema> = {
         }
     }
 };
-
-registry.register(GlobTool);

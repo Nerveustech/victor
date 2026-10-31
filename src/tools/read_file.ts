@@ -16,7 +16,6 @@ limitations under the License.
 
 import { z } from 'zod';
 import type { Tool, ToolResult, ToolContext } from '../types/tools';
-import { registry } from './registry';
 
 
 const ReadFileSchema = z.object({
@@ -55,5 +54,3 @@ export const ReadFileTool: Tool<typeof ReadFileSchema> = {
         return { success: true, content };
     }
 };
-
-registry.register(ReadFileTool);

@@ -16,7 +16,6 @@ limitations under the License.
 
 import { z } from 'zod';
 import type { ToolResult, ToolContext } from '../types/tools';
-import { registry } from './registry';
 
 
 const WriteFileSchema = z.object({
@@ -55,5 +54,3 @@ export const WriteFileTool: any = {
         return `File successfully written to ${args.path}`;
     }
 };
-
-registry.register(WriteFileTool);

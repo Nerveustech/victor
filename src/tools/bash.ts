@@ -16,7 +16,6 @@ limitations under the License.
 
 import { z } from 'zod';
 import type { Tool, ToolResult, ToolContext } from '../types/tools';
-import { registry } from './registry';
 import { platform } from 'node:os';
 import { globalBashHistory } from '../agent/memory';
 
@@ -143,5 +142,3 @@ export const BashTool: Tool<typeof BashSchema> = {
         }
     },
 };
-
-registry.register(BashTool);
